@@ -1,1 +1,466 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detroit Axle Resources Portal</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #e67e22;
+            --dark-bg: #1a1a1a;
+            --sidebar-bg: #2d2d2d;
+            --text-color: #e0e0e0;
+            --border-color: #3d3d3d;
+            --hover-color: rgba(255, 255, 255, 0.1);
+            --transition-speed: 0.3s;
+            --sidebar-width: 280px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--dark-bg);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        /* Layout */
+        .app-container {
+            display: flex;
+            min-height: 100vh;
+            transition: padding-left var(--transition-speed) ease;
+        }
+
+        /* Header */
+        .app-header {
+            display: none; /* Will show on mobile */
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: var(--sidebar-bg);
+            border-right: 1px solid var(--border-color);
+            height: 100vh;
+            overflow-y: auto;
+            position: fixed;
+            z-index: 100;
+            transition: transform var(--transition-speed) ease;
+            transform: translateX(0);
+        }
+
+        .sidebar.collapsed {
+            transform: translateX(-100%);
+        }
+
+        .sidebar-header {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .sidebar-header h1 {
+            font-size: 1.25rem;
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        .sidebar-header i {
+            font-size: 1.25rem;
+        }
+
+        /* Navigation */
+        .nav-menu {
+            list-style: none;
+            padding: 0.5rem 0;
+        }
+
+        .nav-item {
+            position: relative;
+        }
+
+        .nav-toggle {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            padding: 0.75rem 1rem;
+            color: var(--text-color);
+            text-decoration: none;
+            transition: all var(--transition-speed) ease;
+            background: transparent;
+            border: none;
+            text-align: left;
+            cursor: pointer;
+            gap: 0.75rem;
+        }
+
+        .nav-toggle:hover, 
+        .nav-toggle:focus-visible {
+            background: var(--hover-color);
+            outline: none;
+        }
+
+        .nav-toggle i:first-child {
+            width: 1.25rem;
+            text-align: center;
+        }
+
+        .nav-toggle .arrow {
+            margin-left: auto;
+            transition: transform var(--transition-speed) ease;
+            font-size: 0.8rem;
+        }
+
+        .nav-toggle .arrow.rotated {
+            transform: rotate(90deg);
+        }
+
+        .submenu {
+            list-style: none;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height var(--transition-speed) ease;
+            background: rgba(0, 0, 0, 0.15);
+        }
+
+        .submenu.active {
+            max-height: 1000px;
+        }
+
+        .submenu .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 0.6rem 1rem 0.6rem 2.75rem;
+            color: var(--text-color);
+            text-decoration: none;
+            transition: all var(--transition-speed) ease;
+            gap: 0.75rem;
+        }
+
+        .submenu .nav-link:hover,
+        .submenu .nav-link:focus-visible {
+            background: var(--hover-color);
+            outline: none;
+        }
+
+        .submenu .nav-link i {
+            font-size: 0.9rem;
+            width: 1rem;
+            text-align: center;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            padding: 2rem;
+            transition: margin-left var(--transition-speed) ease;
+            min-height: 100vh;
+        }
+
+        .content-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .menu-toggle {
+            background: var(--sidebar-bg);
+            border: none;
+            color: var(--text-color);
+            width: 2.5rem;
+            height: 2.5rem;
+            border-radius: 0.25rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all var(--transition-speed) ease;
+        }
+
+        .menu-toggle:hover {
+            background: var(--hover-color);
+        }
+
+        .welcome-message {
+            max-width: 800px;
+            margin: 2rem auto;
+            text-align: center;
+        }
+
+        .welcome-message h2 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            font-size: 1.75rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .app-container {
+                padding-left: 0;
+            }
+            
+            .sidebar {
+                box-shadow: 2px 0 10px rgba(0, 0, 0, 0.3);
+            }
+            
+            .app-header {
+                display: flex;
+                align-items: center;
+                padding: 1rem;
+                background: var(--sidebar-bg);
+                border-bottom: 1px solid var(--border-color);
+                position: sticky;
+                top: 0;
+                z-index: 90;
+            }
+            
+            .app-header h1 {
+                font-size: 1.1rem;
+                color: var(--primary-color);
+                margin-left: 1rem;
+            }
+            
+            .sidebar-header {
+                display: none;
+            }
+            
+            .main-content {
+                padding: 1rem;
+            }
+        }
+
+        /* Accessibility */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border-width: 0;
+        }
+
+        [tabindex]:focus-visible {
+            outline: 2px solid var(--primary-color);
+            outline-offset: 2px;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container" id="appContainer">
+        <!-- Mobile Header -->
+        <header class="app-header">
+            <button class="menu-toggle" id="mobileMenuToggle" aria-label="Toggle menu">
+                <i class="fas fa-bars"></i>
+            </button>
+            <h1>Detroit Axle Resources</h1>
+        </header>
+
+        <!-- Sidebar Navigation -->
+        <nav class="sidebar" id="sidebar" aria-label="Main navigation">
+            <div class="sidebar-header">
+                <i class="fas fa-car" aria-hidden="true"></i>
+                <h1>Detroit Axle</h1>
+            </div>
+            
+            <ul class="nav-menu">
+                <!-- Main Category -->
+                <li class="nav-item">
+                    <button class="nav-toggle" aria-expanded="false" aria-controls="main-submenu">
+                        <i class="fas fa-home" aria-hidden="true"></i>
+                        <span>Main</span>
+                        <i class="fas fa-chevron-right arrow" aria-hidden="true"></i>
+                    </button>
+                    <ul class="submenu" id="main-submenu">
+                        <li><a href="https://dashboard-2.edesk.com/crm/new" class="nav-link" target="_blank" rel="noopener noreferrer"><i class="fas fa-desktop" aria-hidden="true"></i> eDesk</a></li>
+                        <li><a href="https://ship2.shipstation.com/orders/awaiting-shipment" class="nav-link" target="_blank" rel="noopener noreferrer"><i class="fas fa-shipping-fast" aria-hidden="true"></i> ShipStation</a></li>
+                        <li><a href="https://dax.deposco.com/deposco/default/home" class="nav-link" target="_blank" rel="noopener noreferrer"><i class="fas fa-warehouse" aria-hidden="true"></i> Deposco</a></li>
+                        <li><a href="https://outlook.office365.com/mail" class="nav-link" target="_blank" rel="noopener noreferrer"><i class="fas fa-envelope" aria-hidden="true"></i> Email</a></li>
+                        <li><a href="https://login.authorize.net" class="nav-link" target="_blank" rel="noopener noreferrer"><i class="fas fa-credit-card" aria-hidden="true"></i> Authorize</a></li>
+                        <li><a href="https://returns.detroitaxle.com/returns/288375" class="nav-link" target="_blank" rel="noopener noreferrer"><i class="fas fa-undo" aria-hidden="true"></i> WH Returns</a></li>
+                        <li><a href="https://zubaidi-1.github.io/PriceMatch/" class="nav-link" target="_blank" rel="noopener noreferrer"><i class="fas fa-tags" aria-hidden="true"></i> Price matching</a></li>
+                        <li><a href="https://detroitaxle.github.io/detroit-axle-kit-calculator/" class="nav-link" target="_blank" rel="noopener noreferrer"><i class="fas fa-calculator" aria-hidden="true"></i> Price matching 2</a></li>
+                        <li><a href="https://detroitaxle.github.io/" class="nav-link" target="_blank" rel="noopener noreferrer"><i class="fas fa-clock" aria-hidden="true"></i> ETA</a></li>
+                        <li><a href="https://detroitaxle.github.io/detroit-axle-part-lookup/" class="nav-link" target="_blank" rel="noopener noreferrer"><i class="fas fa-search" aria-hidden="true"></i> Part lookup</a></li>
+                    </ul>
+                </li>
+                
+                <!-- Forms Category -->
+                <li class="nav-item">
+                    <button class="nav-toggle" aria-expanded="false" aria-controls="forms-submenu">
+                        <i class="fas fa-file-alt" aria-hidden="true"></i>
+                        <span>Forms</span>
+                        <i class="fas fa-chevron-right arrow" aria-hidden="true"></i>
+                    </button>
+                    <ul class="submenu" id="forms-submenu">
+                        <li><a href="https://forms.office.com/pages/responsepage.aspx?id=X_CXB0npH0aq97gtiumh61KL-vKS3eFFsPNttk85rl9UNk5WNUQxMUFENlo0WkEySTMxWVo4UDhUVy4u&route=shorturl" class="nav-link" target="_blank" rel="noopener noreferrer"><i class="fas fa-sign-in-alt" aria-hidden="true"></i> Inbound</a></li>
+                        <li><a href="https://forms.office.com/Pages/ResponsePage.aspx?id=X_CXB0npH0aq97gtiumh67s6v8NVr6tJqiATTUs23bJUNlU5TFRMQ1JQVTE4VlhVN0dXQkdXREtBVy4u" class="nav-link" target="_blank" rel="noopener noreferrer"><i class="fas fa-file-signature" aria-hidden="true"></i> A Form</a></li>
+                        <li><a href="https://forms.office.com/Pages/ResponsePage.aspx?id=X_CXB0npH0aq97gtiumh67s6v8NVr6tJqiATTUs23bJUQU05UTdLTUdQWFNBOEQ2Tk9GU0ZRRUIwNC4u&origin=Invitation&channel=0" class="nav-link" target="_blank" rel="noopener noreferrer"><i class="fas fa-money-bill-wave" aria-hidden="true"></i> Refund</a></li>
+                        <li><a href="https://forms.office.com/Pages/ResponsePage.aspx?id=X_CXB0npH0aq97gtiumh60sWcvhK-vdPgF9FY0rwvFBUOEVQVkRET0FONjFWU05ZQ0NKQVVIR05UMi4u" class="nav-link" target="_blank" rel="noopener noreferrer"><i class="fas fa-exchange-alt" aria-hidden="true"></i> Transaction refund</a></li>
+                        <li><a href="https://forms.office.com/pages/responsepage.aspx?id=X_CXB0npH0aq97gtiumh6yzWVK_eBMdBmV_2PAFlNgBUOTNBODBHVEhaQURFRUJNR1pTV1BIV0xBRy4u&origin=lprLink&route=shorturl" class="nav-link" target="_blank" rel="noopener noreferrer"><i class="fas fa-user-tie" aria-hidden="true"></i> Supervisor approval</a></li>
+                        <li><a href="https://forms.office.com/pages/responsepage.aspx?id=X_CXB0npH0aq97gtiumh61KL-vKS3eFFsPNttk85rl9UMzE1SEFaUERKQ1VWRzcyVU4wQjMwMkg0Vi4u&route=shorturl" class="nav-link" target="_blank" rel="noopener noreferrer"><i class="fas fa-phone-alt" aria-hidden="true"></i> Supervisor call</a></li>
+                        <li><a href="https://forms.office.com/pages/responsepage.aspx?id=X_CXB0npH0aq97gtiumh6yzWVK_eBMdBmV_2PAFlNgBUQzJJMUxVM1ZOWlNMSlhZOE1ZUlY2V1FEOC4u&origin=lprLink&route=shorturl" class="nav-link" target="_blank" rel="noopener noreferrer"><i class="fas fa-search-minus" aria-hidden="true"></i> Miss inspection</a></li>
+                    </ul>
+                </li>
+                
+                <!-- Sheets Category -->
+                <li class="nav-item">
+                    <button class="nav-toggle" aria-expanded="false" aria-controls="sheets-submenu">
+                        <i class="fas fa-table" aria-hidden="true"></i>
+                        <span>Sheets</span>
+                        <i class="fas fa-chevron-right arrow" aria-hidden="true"></i>
+                    </button>
+                    <ul class="submenu" id="sheets-submenu">
+                        <li><a href="https://detroitaxle-my.sharepoint.com/:x:/p/mabed/EfuE0fbOP3BPqb3RYPJ0KzUBQtUQuchUzZ2JmxYkeVVE2A?e=rceYzj" class="nav-link" target="_blank" rel="noopener noreferrer"><i class="fas fa-file-excel" aria-hidden="true"></i> A-Form 2025</a></li>
+                        <li><a href="https://detroitaxle-my.sharepoint.com/:x:/p/mabed/EeZS-ka9C61FgRkV1qCgPtoBJy8dVQy5UjLgD9CSwxvQTg?e=HfBYtY" class="nav-link" target="_blank" rel="noopener noreferrer"><i class="fas fa-file-excel" aria-hidden="true"></i> Refund Form 2025</a></li>
+                        <li><a href="https://detroitaxle-my.sharepoint.com/:x:/p/mzreiqi/ETrR0bF7kbRCsvTvLLlo0k4BB47Pb-AtPhGrSN_s6CHC3A" class="nav-link" target="_blank" rel="noopener noreferrer"><i class="fas fa-file-excel" aria-hidden="true"></i> Mislabeled Racks</a></li>
+                        <li><a href="https://detroitaxle-my.sharepoint.com/:x:/p/abalhuniti/EXvuwwljv7xBqpDxGgZGKGgBPNntX6cGYids8tvTSGjaaw?e=IXQl7F" class="nav-link" target="_blank" rel="noopener noreferrer"><i class="fas fa-file-excel" aria-hidden="true"></i> Interchangeable parts</a></li>
+                        <li><a href="https://detroitaxle.sharepoint.com/:x:/s/SharedFilesDAX/EX_uk5x5hWNDrqkQbjyoiuMBP2wFhO4DHlh3Ym0jJRyxBg?CID=55ab5cea-3765-8e84-f0d2-7103ad4f9b53" class="nav-link" target="_blank" rel="noopener noreferrer"><i class="fas fa-file-excel" aria-hidden="true"></i> Missing Parts</a></li>
+                        <li><a href="https://detroitaxle-my.sharepoint.com/:x:/p/hhusseini/EXkndBSDC7VHn57EL2uu-CQB1dSVNFvc-TXX7PPtIxGimA?e=kTMzSQ" class="nav-link" target="_blank" rel="noopener noreferrer"><i class="fas fa-file-excel" aria-hidden="true"></i> Miss Inspection</a></li>
+                        <li><a href="https://detroitaxle-my.sharepoint.com/:x:/r/personal/malhusan_detroitaxle_com/_layouts/15/Doc.aspx?sourcedoc=%7B3D18A2E7-2A3E-4FDE-AC45-8D5BB93F90DE%7D&file=Single%20Rotor%20List%20(1).xlsx&action=default&mobileredirect=true&DefaultItemOpen=1&ct=1746720751738&wdOrigin=OFFICECOM-WEB.START.EDGEWORTH&cid=6df58357-9d05-4fb8-aad0-5a401f5be9c3&wdPreviousSessionSrc=HarmonyWeb&wdPreviousSession=2e610391-1ea9-4a7b-998d-3773ec52eac7" class="nav-link" target="_blank" rel="noopener noreferrer"><i class="fas fa-file-excel" aria-hidden="true"></i> Single Rotor List</a></li>
+                        <li><a href="https://detroitaxle-my.sharepoint.com/:x:/p/mabed/EfsYtK8X2dJGtKOX2QyMjIgBA5n4d9NrFsw1Mt3sWqbUtg?rtime=GtbfgkqH3Ug" class="nav-link" target="_blank" rel="noopener noreferrer"><i class="fas fa-file-excel" aria-hidden="true"></i> Push and Pull</a></li>
+                    </ul>
+                </li>
+                
+                <!-- VIN Category -->
+                <li class="nav-item">
+                    <button class="nav-toggle" aria-expanded="false" aria-controls="vin-submenu">
+                        <i class="fas fa-car" aria-hidden="true"></i>
+                        <span>VIN</span>
+                        <i class="fas fa-chevron-right arrow" aria-hidden="true"></i>
+                    </button>
+                    <ul class="submenu" id="vin-submenu">
+                        <li><a href="https://www.decodethis.com/" class="nav-link" target="_blank" rel="noopener noreferrer"><i class="fas fa-search" aria-hidden="true"></i> Universal VIN Decoder</a></li>
+                        <li><a href="https://www.northamericanmotoring.com/forums/vindecoder.php" class="nav-link" target="_blank" rel="noopener noreferrer"><i class="fas fa-search" aria-hidden="true"></i> North American Motoring</a></li>
+                    </ul>
+                </li>
+                
+                <!-- Shop Category -->
+                <li class="nav-item">
+                    <button class="nav-toggle" aria-expanded="false" aria-controls="shop-submenu">
+                        <i class="fas fa-shopping-cart" aria-hidden="true"></i>
+                        <span>Shop</span>
+                        <i class="fas fa-chevron-right arrow" aria-hidden="true"></i>
+                    </button>
+                    <ul class="submenu" id="shop-submenu">
+                        <li><a href="https://www.amazon.com/stores/DetroitAxle/page/B6888A18-F650-4818-9401-2E4B5F114E7D?ref_=ast_bln" class="nav-link" target="_blank" rel="noopener noreferrer"><i class="fab fa-amazon" aria-hidden="true"></i> Amazon</a></li>
+                        <li><a href="https://www.ebay.com/str/detroitaxle" class="nav-link" target="_blank" rel="noopener noreferrer"><i class="fab fa-ebay" aria-hidden="true"></i> eBay</a></li>
+                        <li><a href="https://www.detroitaxle.com/" class="nav-link" target="_blank" rel="noopener noreferrer"><i class="fas fa-store" aria-hidden="true"></i> Detroit axle</a></li>
+                    </ul>
+                </li>
+                
+                <!-- Parts Reference Category -->
+                <li class="nav-item">
+                    <button class="nav-toggle" aria-expanded="false" aria-controls="parts-submenu">
+                        <i class="fas fa-cogs" aria-hidden="true"></i>
+                        <span>Parts Reference</span>
+                        <i class="fas fa-chevron-right arrow" aria-hidden="true"></i>
+                    </button>
+                    <ul class="submenu" id="parts-submenu">
+                        <li><a href="https://www.showmetheparts.com/PROMAX/" class="nav-link" target="_blank" rel="noopener noreferrer"><i class="fas fa-car-battery" aria-hidden="true"></i> Rotors and brake pads</a></li>
+                        <li><a href="https://www.monroe.com/" class="nav-link" target="_blank" rel="noopener noreferrer"><i class="fas fa-car-crash" aria-hidden="true"></i> Shocks and struts</a></li>
+                        <li><a href="http://precisionrack.com/page1.php" class="nav-link" target="_blank" rel="noopener noreferrer"><i class="fas fa-car-side" aria-hidden="true"></i> Rack and pinions (Precision)</a></li>
+                        <li><a href="https://www.cardone.com/" class="nav-link" target="_blank" rel="noopener noreferrer"><i class="fas fa-car-side" aria-hidden="true"></i> Rack and pinions (Cardone)</a></li>
+                        <li><a href="https://www.moog-suspension-parts.com/" class="nav-link" target="_blank" rel="noopener noreferrer"><i class="fas fa-car-side" aria-hidden="true"></i> Suspension parts</a></li>
+                        <li><a href="https://www.cardone.com/" class="nav-link" target="_blank" rel="noopener noreferrer"><i class="fas fa-car-side" aria-hidden="true"></i> Calipers, axles</a></li>
+                        <li><a href="https://www.rockauto.com/" class="nav-link" target="_blank" rel="noopener noreferrer"><i class="fas fa-car-side" aria-hidden="true"></i> RockAuto</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content" id="mainContent">
+            <div class="content-header">
+                <button class="menu-toggle" id="desktopMenuToggle" aria-label="Toggle menu">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+            
+            <div class="welcome-message">
+                <h2>Welcome to Detroit Axle Resources Portal</h2>
+                <p>Use the navigation menu to access all available tools and resources. This portal provides quick access to all the essential systems and references needed for your daily work.</p>
+                <p>Click the menu button in the top-left corner to show/hide the navigation panel.</p>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // DOM Elements
+            const sidebar = document.getElementById('sidebar');
+            const desktopMenuToggle = document.getElementById('desktopMenuToggle');
+            const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+            const navToggles = document.querySelectorAll('.nav-toggle');
+            
+            // Toggle sidebar visibility
+            function toggleSidebar() {
+                sidebar.classList.toggle('collapsed');
+                
+                // Update toggle button icon
+                const icon = sidebar.classList.contains('collapsed') ? 'fa-chevron-right' : 'fa-bars';
+                desktopMenuToggle.querySelector('i').className = `fas ${icon}`;
+                mobileMenuToggle.querySelector('i').className = `fas ${icon}`;
+            }
+            
+            // Toggle submenus
+            function toggleSubmenu(button) {
+                const isExpanded = button.getAttribute('aria-expanded') === 'true';
+                const submenu = document.getElementById(button.getAttribute('aria-controls'));
+                const arrow = button.querySelector('.arrow');
+                
+                button.setAttribute('aria-expanded', !isExpanded);
+                submenu.classList.toggle('active');
+                arrow.classList.toggle('rotated');
+            }
+            
+            // Event Listeners
+            desktopMenuToggle.addEventListener('click', toggleSidebar);
+            mobileMenuToggle.addEventListener('click', toggleSidebar);
+            
+            navToggles.forEach(toggle => {
+                toggle.addEventListener('click', function() {
+                    toggleSubmenu(this);
+                });
+                
+                // Keyboard accessibility
+                toggle.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        toggleSubmenu(this);
+                    }
+                });
+            });
+            
+            // Close sidebar by default on mobile
+            if (window.innerWidth <= 768) {
+                sidebar.classList.add('collapsed');
+                desktopMenuToggle.querySelector('i').className = 'fas fa-chevron-right';
+                mobileMenuToggle.querySelector('i').className = 'fas fa-chevron-right';
+            }
+            
+            // Handle window resize
+            window.addEventListener('resize', function() {
+                if (window.innerWidth > 768 && sidebar.classList.contains('collapsed')) {
+                    sidebar.classList.remove('collapsed');
+                    desktopMenuToggle.querySelector('i').className = 'fas fa-bars';
+                }
+            });
+        });
+    </script>
+</body>
+</html>
